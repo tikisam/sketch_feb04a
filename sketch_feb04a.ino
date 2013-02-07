@@ -1,22 +1,3 @@
-/*
-Arduino powered sous vide controller
-
-Requires:
-PID library found at
-http://www.arduino.cc/playground/Code/PIDLibrary
-
-dallasTemperature library found at
-http://milesburton.com/index.php?title=Dallas_Temperature_Control_Library
-
-TimerOne library
-
-
-
-andy@chiefmarley.com
-2/9/2011
-*/
-
-
 #include <TimerOne.h>
 
 #include <PID_Beta6.h>
@@ -32,7 +13,7 @@ andy@chiefmarley.com
 #define ONE_WIRE_BUS 2
 
 // initial set point
-#define INITIAL_SET_POINT 125
+#define INITIAL_SET_POINT 127
 
 // pin to trigger relay
 #define TRIGGER_PIN 10
@@ -68,8 +49,8 @@ void setup()
   Setpoint = INITIAL_SET_POINT;
   Output = 50;
   Timer1.pwm(TRIGGER_PIN,Output);
-  Timer1.attachInterrupt(ComputePID);
-  Timer1.start();
+  //Timer1.attachInterrupt(ComputePID);
+  //Timer1.start();
   myPID.SetOutputLimits(0,1023);
    // Start up the library
   sensors.begin();
@@ -92,21 +73,20 @@ void loop()
   
   Serial.print("Requesting temperatures...");
   sensors.requestTemperatures(); // Send the command to get temperatures
- // Serial.println("DONE");
+  Serial.println("DONE");
   
   Input = sensors.getTempFByIndex(0);
+  Serial.println(Input);
   lcd.clear();
   lcd.print("Act: ");
   lcd.print(Input);
   lcd.setCursor(0,1);
   lcd.print("Set: ");
   lcd.print(Setpoint);
-  lcd.setCursor(12,1);
-  lcd.print(Output);
-
+  Serial.println(Setpoint);
  
   //delay to keep wait between button checks and temp updates
-  delay(50);
+  delay(1);
   
   if (digitalRead(TEMP_UP_PIN) == LOW)
   {
@@ -116,16 +96,16 @@ void loop()
   {
     Setpoint--;
   }
-
-
-  if(Setpoint > Input)
-  {
+  if (Input < Setpoint){
+    digitalWrite(TRIGGER_PIN, HIGH);
+    lcd.setCursor(12,1);
+    lcd.print("Cook");
   }
-  if(Setpoint <= Input)
-  {
-  Timer1.setPwmDuty(TRIGGER_PIN,Output);
-  }
-  
+  else {
+    digitalWrite(TRIGGER_PIN, LOW);
+    lcd.setCursor(12,1);
+    lcd.print("Stew");
+  }  
 }
 
 
@@ -137,3 +117,13 @@ void ComputePID()
   Serial.println(Input);
   Serial.println(Output);
 }
+
+/*
+boolean cook(){
+  if (true){
+    digitalWrite(TRIGGER_PIN, HIGH);
+  }
+  else {
+    digitalWrite(TRIGGER_PIN, LOW);
+  }
+}*/
