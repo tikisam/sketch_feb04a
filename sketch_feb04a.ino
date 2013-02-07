@@ -118,12 +118,3 @@ void ComputePID()
   Serial.println(Output);
 }
 
-/*
-boolean cook(){
-  if (true){
-    digitalWrite(TRIGGER_PIN, HIGH);
-  }
-  else {
-    digitalWrite(TRIGGER_PIN, LOW);
-  }
-}*/
